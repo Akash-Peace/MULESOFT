@@ -35,7 +35,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Book My Show is the Mulesoft based project for training purpose given by [Apisero](https://apisero.com/). This project is done on [Anypoint Studio](https://www.mulesoft.com/platform/studio) & [Anypoint Platform](https://anypoint.mulesoft.com/login/) with [DataWeave](https://docs.mulesoft.com/mule-runtime/3.9/dataweave), [RAML](https://raml.org/), [YAML](https://yaml.org/), [XML](https://www.xml.com/), [JSON](https://www.json.org/json-en.html) and [RemoteSQL](https://remotemysql.com/). [MIT](https://github.com/Akash-Peace/REACTJS-FRONTEND-ADVANCED/blob/main/LICENSE) licenses this project. If you like this project, give a _star_ and follow me.
+Book My Show is the Mulesoft based project for training purposes given by [Apisero](https://apisero.com/). This project is done on [Anypoint Studio](https://www.mulesoft.com/platform/studio) & [Anypoint Platform](https://anypoint.mulesoft.com/login/) with [DataWeave](https://docs.mulesoft.com/mule-runtime/3.9/dataweave), [RAML](https://raml.org/), [YAML](https://yaml.org/), [XML](https://www.xml.com/), [JSON](https://www.json.org/json-en.html) and [RemoteSQL](https://remotemysql.com/). [MIT](https://github.com/Akash-Peace/REACTJS-FRONTEND-ADVANCED/blob/main/LICENSE) licenses this project. If you like this project, give a _star_ and follow me.
 
 ## Built With
 
