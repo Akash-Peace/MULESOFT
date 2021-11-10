@@ -1,6 +1,6 @@
 <!-- PROJECT LOGO -->
 <p align="center">
-  <img src="https://github.com/Akash-Peace/MULESOFT/blob/main/docs/md.jpg" alt="Logo" width="150" height="150">
+  <img src="https://github.com/Akash-Peace/MULESOFT/blob/main/docs/md.png" alt="Logo" width="150" height="150">
   <h3 align="center">BOOK MY SHOW</h3>
   <p align="center">
     <a href="https://www.mulesoft.com/"><strong>A Mulesoft Application</strong></a>
