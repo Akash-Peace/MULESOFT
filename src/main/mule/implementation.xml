@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<flow name="GetMovies" doc:id="4c5336f2-42e8-4240-8859-b812202afab2" >
+		<db:select doc:name="Select" doc:id="52487288-8e0f-4a7a-989b-934158795883" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from movie_table where m_available > 0]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="dc387884-a638-4198-b2d8-8453875be35f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="aeeef8e6-fbca-469e-9b12-a620e911b1bc" />
+	</flow>
+	<flow name="BookTickets" doc:id="2df5fe63-8e10-4039-90b9-ff29a1be9856">
+		<set-variable value="#[{&#10;	no_tickets: attributes.queryParams.no_tickets,&#10;	m_id: attributes.uriParams.m_id&#10;}]" doc:name="orderDetails" doc:id="533f0ef3-e26f-40ba-b415-12cae574ef85" variableName="no_tickets"/>
+		<db:select doc:name="Select" doc:id="4971a805-37b1-4e0f-9c8a-ac8ca62b93fe" config-ref="Database_Config">
+			<db:sql ><![CDATA[select m_available from movie_table where m_id = :m_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	'm_id' : vars.no_tickets.m_id
+}]]]></db:input-parameters>
+		</db:select>
+		<validation:is-true doc:name="Is true" doc:id="372d4540-7235-4bba-8aaa-01538b3a8314" expression="#[((payload[0].m_available as Number)  -  (vars.no_tickets.no_tickets   as Number ) )&gt;= 0]" message="Error in true"/>
+		<db:insert doc:name="Insert" doc:id="d130c5bf-fbc5-4371-a9d3-e1a284ea2577" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into order_table (m_id,no_tickets,price) values(:m_id,:no_tickets,:price)]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+   'm_id': vars.no_tickets.'m_id' as  Number,
+   'no_tickets': vars.no_tickets.no_tickets  as Number,
+   'price': if(vars.no_tickets.no_tickets as  Number <= 5) vars.no_tickets.no_tickets as Number * 100 else
+   if(vars.no_tickets.no_tickets as  Number <= 10) vars.no_tickets.no_tickets as Number * (90) else 
+   vars.no_tickets.no_tickets  as Number  * (80)
+}]]]></db:input-parameters>
+		</db:insert>
+		<db:update doc:name="Update" doc:id="b7e47364-3530-4c8a-838d-af01f73ca8fd" config-ref="Database_Config">
+			<db:sql ><![CDATA[update movie_table set m_available = m_available - :no_tickets where m_id  = :m_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+'m_id': vars.no_tickets.'m_id' as  Number,
+'no_tickets': vars.no_tickets.no_tickets  as Number
+	
+}]]]></db:input-parameters>
+		</db:update>
+		<db:select doc:name="Select" doc:id="ae41728a-7c54-40ad-acef-645936178ab7" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from order_table WHERE o_id = (SELECT MAX(o_id) FROM order_table)]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="7ce43468-0d12-4b50-b1a5-4ea2515d890d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="751cfa3c-a530-4f3e-8ccf-ee4ac959fc3f" type="VALIDATION:INVALID_BOOLEAN">
+				<ee:transform doc:name="Transform Message" doc:id="38533b75-0ba4-4de4-b989-40a2196727b9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<set-payload value='#[output application/json&#10;	---&#10;	{&#10;	"error": "avaible tickets is only $(payload[0].m_available) but you have ordered $(vars.no_tickets.no_tickets)"&#10;}]' doc:name="Set Payload" doc:id="c647bf58-156b-414e-b560-4eeadd782cd7" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

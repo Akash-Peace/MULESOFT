@@ -1,0 +1,8 @@
+http:
+  port: '8081'
+db:
+ port: '3306'
+ host:  'remotemysql.com'
+ user: 'Jk8nbsjqRg'
+ pass:  'OwYpM3r0Rx'
+ database: 'Jk8nbsjqRg'
